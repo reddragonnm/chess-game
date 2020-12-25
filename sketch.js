@@ -4,17 +4,7 @@ let pickedPiece;
 let kingb;
 let kingw;
 
-// let board = [
-//   ['', '', '', '', '', '', '', ''],
-//   ['pb', 'pb', 'pb', 'pb', 'pb', 'pb', 'pb', 'pb'],
-//   ['', '', '', '', '', '', '', ''],
-//   ['', '', '', '', '', '', '', ''],
-//   ['', '', '', '', '', '', '', ''],
-//   ['', 'kw', '', '', '', '', '', ''],
-//   ['', '', 'qw', '', '', 'pw', 'bw', ''],
-//   ['rw', '', '', 'nw', '', '', '', '']
-// ];
-
+let undoButton;
 
 let board = [
   ['rb', 'nb', 'bb', 'qb', 'kb', 'bb', 'nb', 'rb'],
@@ -31,6 +21,10 @@ let history = [board];
 
 function setup() {
   createCanvas(tileSize * 8, tileSize * 8);
+
+  undoButton = createButton('Undo move');
+  undoButton.mousePressed(undoBoard);
+
   initBoard();
   angleMode(DEGREES);
 }
@@ -38,8 +32,7 @@ function setup() {
 function draw() {
   background(255);
 
-  kingb.inCheck = [];
-  kingw.inCheck = [];
+
 
   // TODO: when the king is in check:
   // 1. Move the king from the tile
@@ -51,8 +44,6 @@ function draw() {
   //            . If there is only one check
   // 3. Block the piece with another piece
 
-  checkForCheck();
-
   drawGrid();
   showAllPieces();
   highlightAvailableMoves();
@@ -60,7 +51,6 @@ function draw() {
 }
 
 function keyPressed() {
-  // if (key == 's') console.log(board);
   if (key == 's') console.log(history);
 }
 
@@ -77,10 +67,10 @@ function mousePressed() {
 }
 
 function undoBoard() {
-  if (history >= 2) {
-    board = history[history.length - 2];
-    history.splice(history.length - 1, 1);
+  if (history.length >= 2) {
+    board = history[history.length - 1];
     initBoard();
+    history.splice(-1, 1);
   }
 }
 
@@ -106,6 +96,7 @@ function mouseReleased() {
 
     history.push(boardToString(board));
     pickedPiece = null;
+    checkForCheck();
   }
 }
 
@@ -139,13 +130,13 @@ function initBoard() {
   }
 }
 
-function boardToString(board) {
+function boardToString(br) {
   let b = [];
   for (let i = 0; i < 8; i++) {
     let arr = [];
     for (let j = 0; j < 8; j++) {
       let s = '';
-      let t = board[i][j];
+      let t = br[i][j];
 
       if (t == '') {
         arr.push('');
@@ -161,6 +152,7 @@ function boardToString(board) {
 
       s += (t.isWhite ? 'w' : 'b');
       arr.push(s);
+      console.log(t);
     }
     b.push(arr);
   }
@@ -168,18 +160,32 @@ function boardToString(board) {
 }
 
 function highlightAvailableMoves() {
-  fill(125, 255, 0);
   noStroke();
   if (pickedPiece != null) {
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
-        if (pickedPiece.isValidMove(i, j)) circle(j * tileSize + tileSize / 2, i * tileSize + tileSize / 2, 20);
+        let t;
+        if (pickedPiece.isWhite) t = (kingw.inCheck.length == 0);
+        else t = (kingb.inCheck.length == 0);
+
+        if (t) {
+          if (pickedPiece.isValidMove(i, j)) {
+            fill(125, 255, 0);
+            circle(j * tileSize + tileSize / 2, i * tileSize + tileSize / 2, 20);
+          }
+        } else if (!t && pickedPiece.validCheckMove(i, j)) {
+          fill(255, 0, 0);
+          circle(j * tileSize + tileSize / 2, i * tileSize + tileSize / 2, 20);
+        }
       }
     }
   }
 }
 
 function checkForCheck() {
+  kingb.inCheck = [];
+  kingw.inCheck = [];
+
   for (let t of getAllPieces()) {
     if (t.isWhite && t.isValidMove(kingb.pos)) {
       kingb.inCheck.push(t);
