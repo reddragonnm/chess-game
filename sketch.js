@@ -204,7 +204,7 @@ function getAllPieces() {
 
 function showAllPieces() {
   for (let p of getAllPieces()) {
-    if (p instanceof King && p.inCheck) {
+    if (p instanceof King && p.inCheck.length > 0) {
       fill(255, 0, 0);
       rect(p.pos.x, p.pos.y, tileSize, tileSize);
     }
