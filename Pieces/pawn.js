@@ -2,15 +2,19 @@ class Pawn extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite);
     this.letter = 'P';
+
+    if (this.isWhite) this.img = white_pawn;
+    else this.img = black_pawn;
   }
 
-  validCheckMove() {
-    return true;
-  }
-
-  isValidMove(a, b) {
+  isValidMove(a, b, c) {
     let goto;
-    let current = posToIndex(this.prevPos);
+    let current;
+
+    if (c == null)
+      current = posToIndex(this.prevPos);
+    else
+      current = c;
 
     if (a instanceof p5.Vector) {
       goto = posToIndex(a);

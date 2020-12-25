@@ -2,6 +2,9 @@ class Rook extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite);
     this.letter = 'R';
+
+    if (this.isWhite) this.img = white_rook;
+    else this.img = black_rook;
   }
 
   isValidMove(a, b) {

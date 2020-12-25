@@ -2,20 +2,9 @@ class Queen extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite);
     this.letter = 'Q';
-  }
 
-  validCheckMove(a, b) {
-    let goto;
-    if (a instanceof p5.Vector) goto = posToIndex(a);
-    else goto = createVector(a, b);
-    let current = posToIndex(this.prevPos);
-
-    // Kill the piece which is giving the check
-    for (let t of this.king.inCheck) {
-      if (goto.equals(posToIndex(t.pos)) && this.isValidMove(t.pos)) return true;
-    }
-
-    return false;
+    if (this.isWhite) this.img = white_queen;
+    else this.img = black_queen;
   }
 
   isValidMove(a, b) {

@@ -3,11 +3,10 @@ class King extends Piece {
     super(x, y, isWhite);
     this.letter = 'K';
 
-    this.inCheck = [];
-  }
+    this.inCheck = false;
 
-  validCheckMove() {
-    return true;
+    if (this.isWhite) this.img = white_king;
+    else this.img = black_king;
   }
 
   isValidMove(a, b) {

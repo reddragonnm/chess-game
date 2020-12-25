@@ -2,10 +2,9 @@ class Knight extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite);
     this.letter = 'N';
-  }
 
-  validCheckMove() {
-    return true;
+    if (this.isWhite) this.img = white_knight;
+    else this.img = black_knight;
   }
 
   isValidMove(a, b) {

@@ -12,14 +12,23 @@ class Piece {
 
     this.updatePrevPos();
 
-    if (this.isWhite) {
-      this.king = kingw;
-    } else {
-      this.king = kingb;
-    }
-
     this.lifted = false;
     this.hasMoved = false;
+  }
+
+  copyPiece() {
+    let arr = [Pawn, Queen, Rook, Bishop, King, Knight];
+    let t;
+    for (let c of arr) {
+      if (this instanceof c) {
+        t = new c(this.x, this.y, this.isWhite);
+      }
+    }
+    t.prevPos = this.prevPos.copy();
+    t.pos = this.pos.copy();
+    t.lifted = this.lifted;
+    t.hasMoved = this.hasMoved;
+    return t;
   }
 
   mouseOver() {
@@ -28,13 +37,10 @@ class Piece {
   }
 
   updatePrevPos() {
-    this.prevPos = createVector(this.pos.x, this.pos.y);
+    this.prevPos = this.pos.copy();
   }
 
   lift() {
-    if (this.isWhite) this.king = kingw;
-    else this.king = kingb;
-
     this.lifted = true;
   }
 
@@ -47,14 +53,15 @@ class Piece {
 
     let notOffScreen = (0 <= p.x && p.x <= width && 0 <= p.y && p.y <= height);
 
-    if (this.isValidMove(p) && notOffScreen && this.king.inCheck.length == 0) {
-      this.pos = p;
-      this.hasMoved = true;
-    } else if (this.king.inCheck.length > 0 && this.validCheckMove(p) && notOffScreen) {
+    if (
+      this.isWhite == whiteMove && this.isValidMove(p) &&
+      notOffScreen &&
+      validCheckMove(this, p)
+    ) {
       this.pos = p;
       this.hasMoved = true;
     } else {
-      this.pos = this.prevPos;
+      this.pos = this.prevPos.copy();
     }
 
     return [this.prevPos, this.pos];
@@ -63,22 +70,11 @@ class Piece {
   show() {
     if (this.lifted) {
       this.pos.set(mouseX - tileSize / 2, mouseY - tileSize / 2);
-      textSize(70);
-    } else {
-      textSize(50);
+      image(this.img, this.pos.x - tileSize/4, this.pos.y - tileSize/4, tileSize * 1.5, tileSize * 1.5);
+    }
+    else {
+      image(this.img, this.pos.x, this.pos.y, tileSize, tileSize);
     }
 
-    if (this.isWhite) {
-      fill(255);
-      stroke(0);
-    } else {
-      fill(0);
-      stroke(255);
-    }
-
-    strokeWeight(4);
-    textAlign(CENTER, CENTER);
-
-    text(this.letter, this.pos.x + tileSize / 2, this.pos.y + tileSize / 2);
   }
 }
