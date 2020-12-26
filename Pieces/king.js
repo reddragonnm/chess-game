@@ -1,7 +1,7 @@
 class King extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite);
-    this.letter = 'K';
+    this.points = 0;
 
     this.inCheck = false;
 

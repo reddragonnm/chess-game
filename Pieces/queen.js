@@ -1,7 +1,7 @@
 class Queen extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite);
-    this.letter = 'Q';
+    this.points = 9;
 
     if (this.isWhite) this.img = white_queen;
     else this.img = black_queen;

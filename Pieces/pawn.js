@@ -1,7 +1,7 @@
 class Pawn extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite);
-    this.letter = 'P';
+    this.points = 1;
 
     if (this.isWhite) this.img = white_pawn;
     else this.img = black_pawn;

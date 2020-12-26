@@ -1,7 +1,7 @@
 class Knight extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite);
-    this.letter = 'N';
+    this.points = 3;
 
     if (this.isWhite) this.img = white_knight;
     else this.img = black_knight;

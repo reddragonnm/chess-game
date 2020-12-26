@@ -1,7 +1,7 @@
 class Rook extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite);
-    this.letter = 'R';
+    this.points = 5;
 
     if (this.isWhite) this.img = white_rook;
     else this.img = black_rook;

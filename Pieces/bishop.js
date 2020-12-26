@@ -1,7 +1,7 @@
 class Bishop extends Piece {
   constructor(x, y, isWhite) {
     super(x, y, isWhite);
-    this.letter = 'B';
+    this.points = 3;
 
     if (this.isWhite) this.img = white_bishop;
     else this.img = black_bishop;

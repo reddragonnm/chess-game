@@ -28,6 +28,7 @@ function preload() {
   black_queen = loadImage("assets/black_queen.png");
 }
 
+let maxDepth = 1;
 let tileSize = 70;
 let pickedPiece;
 
