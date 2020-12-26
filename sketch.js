@@ -110,9 +110,26 @@ function movePiece(piece, p1, p2, br) {
   return br;
 }
 
-function validCheckMove(a, b, isWhite) {
-  if (isWhite == whiteMove) {
+function validCheckMove(piece, goto) {
+  let pPos = piece.pos.copy();
+
+  let a = checkForCheck(board);
+
+  piece.updatePos(goto);
+
+  board[pPos.x][pPos.y] = '';
+  board[goto.x][goto.y] = piece;
+
+  let b = checkForCheck(board);
+  piece.updatePos(pPos);
+
+  if (a[0] && a[0] == b[0]) return false;
+  if (a[1] && a[1]== b[1]) return false;
+
+  if (!piece.isWhite && whiteMove==false) {
+    if (a[0]==false && b[0]==true) return false;
   }
+
 
   // TODO: when the king is in check:
   // 1. Move the king from the tile
@@ -126,7 +143,6 @@ function validCheckMove(a, b, isWhite) {
 
   return true;
 }
-
 
 function mouseReleased() {
   if (pickedPiece != null) {
@@ -180,12 +196,24 @@ function checkForCheck(br) {
 
   if (br == null) br = board;
 
-  for (let t of getAllPieces(br)) {
-    if (t.isWhite && t.isValidMove(kingb.pos))
-      bCheck = true;
-
-    if (!t.isWhite && t.isValidMove(kingw.pos))
-      wCheck = true;
+  for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
+      let t = br[i][j];
+      for (let p of getAllPieces(br)) {
+        if (p instanceof King && t!='') {
+          if (p.isWhite) {
+            if (!t.isWhite && t.isValidMove(p.pos)) {
+              wCheck = true;
+            }
+          }
+          else {
+            if (t.isWhite && t.isValidMove(p.pos)) {
+              bCheck = true;
+            }
+          }
+        }
+      }
+    }
   }
 
   return [bCheck, wCheck];

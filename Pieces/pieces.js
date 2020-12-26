@@ -54,15 +54,14 @@ class Piece {
       constrain(floor(mouseX / tileSize), 0, 7)
     );
 
-    console.log(p);
-
-    if (
-      this.isWhite == whiteMove && this.isValidMove(p) &&
-      validCheckMove(this, p)
-    ) {
+    if (this.canGo(p)) {
       this.hasMoved = true;
       return [this.pos, p];
     }
+  }
+
+  canGo(p) {
+    return this.isWhite == whiteMove && this.isValidMove(p) && validCheckMove(this, p);
   }
 
   show() {
