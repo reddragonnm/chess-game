@@ -78,7 +78,7 @@ function draw() {
 }
 
 function mousePressed() {
-  if (pickedPiece == null) {
+  if (pickedPiece == null && whiteMove) {
     for (let tile of getAllPieces()) {
       if (tile.mouseOver()) {
         pickedPiece = tile;
@@ -89,7 +89,9 @@ function mousePressed() {
   }
 }
 
-function movePiece(piece, p1, p2, br) {
+function movePiece(piece, p2, br) {
+  let p1 = piece.pos;
+
   if (!p1.equals(p2) && br == null) {
     whiteMove = !whiteMove;
   }
@@ -112,6 +114,9 @@ function movePiece(piece, p1, p2, br) {
 
 function validCheckMove(piece, goto) {
   let pPos = piece.pos.copy();
+  let prevP = '';
+  if (board[goto.x][goto.y] != '')
+    prevP = board[goto.x][goto.y].copyPiece();
 
   let a = checkForCheck(board);
 
@@ -121,7 +126,10 @@ function validCheckMove(piece, goto) {
   board[goto.x][goto.y] = piece;
 
   let b = checkForCheck(board);
+
   piece.updatePos(pPos);
+  board[pPos.x][pPos.y] = piece;
+  board[goto.x][goto.y] = prevP;
 
   if (a[0] && a[0] == b[0]) return false;
   if (a[1] && a[1]== b[1]) return false;
@@ -129,17 +137,6 @@ function validCheckMove(piece, goto) {
   if (!piece.isWhite && whiteMove==false) {
     if (a[0]==false && b[0]==true) return false;
   }
-
-
-  // TODO: when the king is in check:
-  // 1. Move the king from the tile
-  //       - If there is more than one check
-  // 2. Kill the piece which is giving the check
-  //       - With another piece
-  //       - With the king
-  //            . If the piece isn't backed up by another piece of the same color
-  //            . If there is only one check
-  // 3. Block the piece with another piece
 
   return true;
 }
@@ -149,7 +146,7 @@ function mouseReleased() {
     let p = pickedPiece.drop();
 
     if (p != null) {
-       board = movePiece(pickedPiece, p[0], p[1]);
+       board = movePiece(pickedPiece, p);
 
        let b = checkForCheck(board);
        kingb.inCheck = b[0];
@@ -157,6 +154,16 @@ function mouseReleased() {
     }
 
     pickedPiece = null;
+
+    checkForCheckMate(board);
+    if (winner != '') console.log(winner);
+
+    if (!whiteMove && winner == '') {
+      aiMove();
+      let b = checkForCheck(board);
+      kingb.inCheck = b[0];
+      kingw.inCheck = b[1];
+    }
   }
 }
 
@@ -217,6 +224,26 @@ function checkForCheck(br) {
   }
 
   return [bCheck, wCheck];
+}
+
+function checkForCheckMate(br) {
+  if (br == null) br = board;
+
+  let canGoN = 0;
+
+  for (let p of getAllPieces(br)) {
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        if (p.canGo(createVector(i, j))) canGoN++;
+      }
+    }
+  }
+
+  if (canGoN == 0) {
+    if (whiteMove && kingw.inCheck) winner = 'Checkmate by black';
+    else if (!whiteMove && kingb.inCheck) winner = 'Checkmate by white';
+    else winner = 'Stalemate';
+  }
 }
 
 function getAllPieces(br) {

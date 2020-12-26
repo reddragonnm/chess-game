@@ -56,7 +56,7 @@ class Piece {
 
     if (this.canGo(p)) {
       this.hasMoved = true;
-      return [this.pos, p];
+      return p;
     }
   }
 
