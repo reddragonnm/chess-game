@@ -26,6 +26,9 @@ class Pawn extends Piece {
       let a = current.x + arr[i][0] * (this.isWhite ? 1 : -1);
       let b = current.y + arr[i][1];
 
+      if (0 > a || a > 7) continue;
+      if (0 > b || b > 7) continue;
+
       // if first or second moves
       if (
         i == 0 || // first move
@@ -36,7 +39,7 @@ class Pawn extends Piece {
 
       // if third or fourth - diagonal moves
       if (i==2 || i==3) {
-        if (board[a][b] != '' && goto.equals(createVector(a, b))) return true;
+        if (board[a][b] != '' && board[a][b].isWhite!=this.isWhite && goto.equals(createVector(a, b))) return true;
       }
     }
 

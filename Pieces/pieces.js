@@ -55,7 +55,6 @@ class Piece {
     );
 
     if (this.canGo(p)) {
-      this.hasMoved = true;
       return p;
     }
   }
@@ -68,8 +67,7 @@ class Piece {
     if (this.lifted) {
       imageMode(CENTER);
       image(this.img, mouseX, mouseY, tileSize * 1.5, tileSize * 1.5);
-    }
-    else {
+    } else {
       imageMode(CORNER);
       let pos = indexToPos(this.pos);
       image(this.img, pos.x, pos.y, tileSize, tileSize);

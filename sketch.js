@@ -75,6 +75,7 @@ function draw() {
 
   showBoard();
   showAllPieces();
+  highlightMoves();
 }
 
 function mousePressed() {
@@ -93,7 +94,7 @@ function movePiece(piece, p2, br) {
   let p1 = piece.pos;
 
   if (!p1.equals(p2) && br == null) {
-    whiteMove = !whiteMove;
+    piece.hasMoved = true;
   }
 
   if (br == null) br = board;
@@ -134,8 +135,12 @@ function validCheckMove(piece, goto) {
   if (a[0] && a[0] == b[0]) return false;
   if (a[1] && a[1]== b[1]) return false;
 
-  if (!piece.isWhite && whiteMove==false) {
-    if (a[0]==false && b[0]==true) return false;
+  if (!piece.isWhite && !whiteMove) {
+    if (!a[0] && b[0]) return false;
+  }
+
+  if (piece.isWhite && whiteMove) {
+    if (!a[1] && b[1]) return false;
   }
 
   return true;
@@ -144,6 +149,9 @@ function validCheckMove(piece, goto) {
 function mouseReleased() {
   if (pickedPiece != null) {
     let p = pickedPiece.drop();
+
+    if (pickedPiece.isWhite && p!=null && !pickedPiece.pos.equals(p))
+      whiteMove = false;
 
     if (p != null) {
        board = movePiece(pickedPiece, p);
@@ -155,7 +163,7 @@ function mouseReleased() {
 
     pickedPiece = null;
 
-    checkForCheckMate(board);
+    winner = checkForGameOver(board);
     if (winner != '') console.log(winner);
 
     if (!whiteMove && winner == '') {
@@ -226,10 +234,27 @@ function checkForCheck(br) {
   return [bCheck, wCheck];
 }
 
-function checkForCheckMate(br) {
+function highlightMoves() {
+  noStroke();
+  fill(125, 255, 0);
+
+  if (pickedPiece != null) {
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        if (pickedPiece.canGo(createVector(i, j))) {
+          circle(j * tileSize + tileSize / 2, i * tileSize + tileSize / 2, 25);
+          // rect(j*tileSize, i*tileSize, tileSize, tileSize);
+        }
+      }
+    }
+  }
+}
+
+function checkForGameOver(br) {
   if (br == null) br = board;
 
   let canGoN = 0;
+  let w = '';
 
   for (let p of getAllPieces(br)) {
     for (let i = 0; i < 8; i++) {
@@ -240,10 +265,12 @@ function checkForCheckMate(br) {
   }
 
   if (canGoN == 0) {
-    if (whiteMove && kingw.inCheck) winner = 'Checkmate by black';
-    else if (!whiteMove && kingb.inCheck) winner = 'Checkmate by white';
-    else winner = 'Stalemate';
+    if (whiteMove && kingw.inCheck) w = 'Checkmate by black';
+    else if (!whiteMove && kingb.inCheck) w = 'Checkmate by white';
+    else w = 'Stalemate';
   }
+
+  return w;
 }
 
 function getAllPieces(br) {
