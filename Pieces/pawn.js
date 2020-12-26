@@ -7,51 +7,35 @@ class Pawn extends Piece {
     else this.img = black_pawn;
   }
 
-  isValidMove(a, b, c) {
-    let goto;
-    let current;
+  isValidMove(goto) {
+    let current = this.pos;
 
-    if (c == null)
-      current = posToIndex(this.prevPos);
-    else
-      current = c;
-
-    if (a instanceof p5.Vector) {
-      goto = posToIndex(a);
-    } else goto = createVector(a, b);
-
-    if ((!this.isWhite && current.x >= 7) || (this.isWhite && current.x <= 0)) {
+    if (current.x >= 7 || current.x <= 0) {
       return false;
     }
 
-    if (this.isWhite) {
-      if (goto.equals(createVector(current.x - 1, current.y)) && board[current.x - 1][current.y] == '') return true;
-      if (!this.hasMoved)
-        if (goto.equals(createVector(current.x - 2, current.y)) && board[current.x - 2][current.y] == '') return true;
+    let arr = [
+      [-1, 0],
+      [-2, 0],
+      [-1, -1],
+      [-1, 1]
+    ]
 
-      let t = board[current.x - 1][current.y - 1];
-      if (t != null && t != '' && !t.isWhite) {
-        if (goto.equals(createVector(current.x - 1, current.y - 1))) return true;
+    for (let i = 0; i < 4; i++) {
+      let a = current.x + arr[i][0] * (this.isWhite ? 1 : -1);
+      let b = current.y + arr[i][1];
+
+      // if first or second moves
+      if (
+        i == 0 || // first move
+        (!this.hasMoved && i == 1) // second move and ensure that the pawn hasn't moved before
+      ) {
+        if (board[a][b] == "" && goto.equals(createVector(a, b))) return true;
       }
 
-      t = board[current.x - 1][current.y + 1];
-      if (t != null && t != '' && !t.isWhite) {
-        if (goto.equals(createVector(current.x - 1, current.y + 1))) return true;
-
-      }
-    } else {
-      if (goto.equals(createVector(current.x + 1, current.y)) && board[current.x + 1][current.y] == '') return true;
-      if (!this.hasMoved)
-        if (goto.equals(createVector(current.x + 2, current.y)) && board[current.x + 2][current.y] == '') return true;
-
-      let t = board[current.x + 1][current.y - 1];
-      if (t != null && t != '' && t.isWhite) {
-        if (goto.equals(createVector(current.x + 1, current.y - 1))) return true;
-      }
-
-      t = board[current.x + 1][current.y + 1];
-      if (t != null && t != '' && t.isWhite) {
-        if (goto.equals(createVector(current.x + 1, current.y + 1))) return true;
+      // if third or fourth - diagonal moves
+      if (i==2 || i==3) {
+        if (board[a][b] != '' && goto.equals(createVector(a, b))) return true;
       }
     }
 

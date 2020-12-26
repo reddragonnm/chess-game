@@ -7,13 +7,8 @@ class Bishop extends Piece {
     else this.img = black_bishop;
   }
 
-  isValidMove(a, b) {
-    let goto;
-    let current = posToIndex(this.prevPos);
-
-    if (a instanceof p5.Vector) {
-      goto = posToIndex(a);
-    } else goto = createVector(a, b);
+  isValidMove(goto) {    
+    let current = this.pos;
 
     for (let i = 0; i < 8; i++) {
       let a = current.x - i;

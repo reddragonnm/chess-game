@@ -7,13 +7,8 @@ class Knight extends Piece {
     else this.img = black_knight;
   }
 
-  isValidMove(a, b) {
-    let goto;
-    let current = posToIndex(this.prevPos);
-
-    if (a instanceof p5.Vector) {
-      goto = posToIndex(a);
-    } else goto = createVector(a, b);
+  isValidMove(goto) {
+    let current = this.pos;
 
     let arr = [
       [-2, -1],

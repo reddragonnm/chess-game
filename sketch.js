@@ -1,3 +1,33 @@
+let white_king;
+let white_knight;
+let white_rook;
+let white_pawn;
+let white_queen;
+let white_bishop;
+
+let black_king;
+let black_knight;
+let black_rook;
+let black_pawn;
+let black_queen;
+let black_bishop;
+
+function preload() {
+  white_king = loadImage("assets/white_king.png");
+  white_knight = loadImage("assets/white_knight.png");
+  white_rook = loadImage("assets/white_rook.png");
+  white_pawn = loadImage("assets/white_pawn.png");
+  white_bishop = loadImage("assets/white_bishop.png");
+  white_queen = loadImage("assets/white_queen.png");
+
+  black_king = loadImage("assets/black_king.png");
+  black_knight = loadImage("assets/black_knight.png");
+  black_rook = loadImage("assets/black_rook.png");
+  black_pawn = loadImage("assets/black_pawn.png");
+  black_bishop = loadImage("assets/black_bishop.png");
+  black_queen = loadImage("assets/black_queen.png");
+}
+
 let tileSize = 70;
 let pickedPiece;
 
@@ -18,48 +48,15 @@ let board = [
   ['rw', 'nw', 'bw', 'qw', 'kw', 'bw', 'nw', 'rw']
 ];
 
-let history = [];
-let hn = 0;
-
 let whiteMove = true;
-
-let white_king;
-let white_knight;
-let white_rook;
-let white_pawn;
-let white_queen;
-let white_bishop;
-
-let black_king;
-let black_knight;
-let black_rook;
-let black_pawn;
-let black_queen;
-let black_bishop;
-
-function preload() {
-  white_king = loadImage('assets/white_king.png');
-  white_knight = loadImage('assets/white_knight.png');
-  white_rook = loadImage('assets/white_rook.png');
-  white_pawn = loadImage('assets/white_pawn.png');
-  white_bishop = loadImage('assets/white_bishop.png');
-  white_queen = loadImage('assets/white_queen.png');
-
-  black_king = loadImage("assets/black_king.png");
-  black_knight = loadImage("assets/black_knight.png");
-  black_rook = loadImage("assets/black_rook.png");
-  black_pawn = loadImage("assets/black_pawn.png");
-  black_bishop = loadImage("assets/black_bishop.png");
-  black_queen = loadImage("assets/black_queen.png");
-}
 
 function copyBoard(br) {
   let b = [];
   for (let i of br) {
     let k = [];
     for (let j of i) {
-      if (j != "") k.push(j.copyPiece());
-      else k.push("");
+      if (j != '') k.push(j.copyPiece());
+      else k.push('');
     }
     b.push(k);
   }
@@ -69,9 +66,6 @@ function copyBoard(br) {
 function setup() {
   createCanvas(tileSize * 8, tileSize * 8);
 
-  undoButton = createButton('Undo move');
-  undoButton.mousePressed(undoBoard);
-
   initBoard();
   angleMode(DEGREES);
 }
@@ -79,17 +73,8 @@ function setup() {
 function draw() {
   background(255);
 
-  drawGrid();
+  showBoard();
   showAllPieces();
-
-  let t = checkForCheck(board);
-  kingb.inCheck = t[0];
-  kingw.inCheck = t[1];
-
-}
-
-function keyPressed() {
-  if (key == 's') console.log(history);
 }
 
 function mousePressed() {
@@ -104,37 +89,14 @@ function mousePressed() {
   }
 }
 
-function undoBoard() {
-  if (history.length > 0) {
-    board = copyBoard(history.splice(-2, 1)[0]);
-    console.log('hello');
-  } else {
-    board = [
-      ['rb', 'nb', 'bb', 'qb', 'kb', 'bb', 'nb', 'rb'],
-      ['pb', 'pb', 'pb', 'pb', 'pb', 'pb', 'pb', 'pb'],
-      ['', '', '', '', '', '', '', ''],
-      ['', '', '', '', '', '', '', ''],
-      ['', '', '', '', '', '', '', ''],
-      ['', '', '', '', '', '', '', ''],
-      ['pw', 'pw', 'pw', 'pw', 'pw', 'pw', 'pw', 'pw'],
-      ['rw', 'nw', 'bw', 'qw', 'kw', 'bw', 'nw', 'rw']
-    ];
-    initBoard();
-  }
-}
-
 function movePiece(piece, p1, p2, br) {
-
   if (!p1.equals(p2) && br == null) {
-    history.push(copyBoard(board));
     whiteMove = !whiteMove;
   }
 
   if (br == null) br = board;
 
-
-
-  if (pickedPiece instanceof Pawn) {
+  if (piece instanceof Pawn) {
     if (p2.x == 0 || p2.x == 7) {
       piece = new Queen(p2.y, p2.x, piece.isWhite);
     }
@@ -143,7 +105,7 @@ function movePiece(piece, p1, p2, br) {
   br[p1.x][p1.y] = '';
   br[p2.x][p2.y] = piece;
 
-  piece.updatePrevPos();
+  piece.updatePos(p2);
 
   return br;
 }
@@ -170,17 +132,13 @@ function mouseReleased() {
   if (pickedPiece != null) {
     let p = pickedPiece.drop();
 
-    let p1 = posToIndex(p[0]);
-    let p2 = posToIndex(p[1]);
+    if (p != null) {
+       board = movePiece(pickedPiece, p[0], p[1]);
 
-    let boardCopy = copyBoard(board); 
-    let a = checkForCheck(boardCopy);
-
-    board = movePiece(pickedPiece, p1, p2);
-
-    let b = checkForCheck(board);
-    kingb.inCheck = b[0];
-    kingw.inCheck = b[1];
+       let b = checkForCheck(board);
+       kingb.inCheck = b[0];
+       kingw.inCheck = b[1];
+    }
 
     pickedPiece = null;
   }
@@ -203,7 +161,7 @@ function initBoard() {
         if (type == 'k') c = King;
         if (type == 'p') c = Pawn;
 
-        board[i][j] = new c(j, i, color == 'w');
+        board[i][j] = new c(i, j, color == 'w');
         if (c == King) {
           if (color == 'w') {
             kingw = board[i][j]
@@ -216,53 +174,6 @@ function initBoard() {
   }
 }
 
-function boardToString(br) {
-  let b = [];
-  for (let i = 0; i < 8; i++) {
-    let arr = [];
-    for (let j = 0; j < 8; j++) {
-      let s = '';
-      let t = br[i][j];
-
-      if (t == '') {
-        arr.push('');
-        continue;
-      }
-
-      if (t instanceof Pawn) s = 'p';
-      if (t instanceof Queen) s = 'q';
-      if (t instanceof Rook) s = 'r';
-      if (t instanceof King) s = 'k';
-      if (t instanceof Knight) s = 'n';
-      if (t instanceof Bishop) s = 'b';
-
-      s += (t.isWhite ? 'w' : 'b');
-      arr.push(s);
-      console.log(t);
-    }
-    b.push(arr);
-  }
-  return b;
-}
-
-// function highlightAvailableMoves() {
-//   noStroke();
-//   if (pickedPiece != null) {
-//     for (let i = 0; i < 8; i++) {
-//       for (let j = 0; j < 8; j++) {
-//         let t;
-//         if (pickedPiece.isWhite) t = (!kingw.inCheck);
-//         else t = (!kingb.inCheck);
-
-//         if (pickedPiece.isValidMove(i, j) && pickedPiece.isWhite == whiteMove) {
-//           fill(125, 255, 0);
-//           circle(j * tileSize + tileSize / 2, i * tileSize + tileSize / 2, 20);
-//         }
-//       }
-//     }
-//   }
-// }
-
 function checkForCheck(br) {
   let wCheck = false;
   let bCheck = false;
@@ -270,13 +181,11 @@ function checkForCheck(br) {
   if (br == null) br = board;
 
   for (let t of getAllPieces(br)) {
-    if (t.isWhite && t.isValidMove(kingb.pos)) {
+    if (t.isWhite && t.isValidMove(kingb.pos))
       bCheck = true;
-    }
 
-    if (!t.isWhite && t.isValidMove(kingw.pos)) {
+    if (!t.isWhite && t.isValidMove(kingw.pos))
       wCheck = true;
-    }
   }
 
   return [bCheck, wCheck];
@@ -301,13 +210,14 @@ function showAllPieces() {
   for (let p of getAllPieces()) {
     if (p instanceof King && p.inCheck) {
       fill(255, 0, 0);
-      rect(p.pos.x, p.pos.y, tileSize, tileSize);
+      let pos = indexToPos(p.pos);
+      rect(pos.x, pos.y, tileSize, tileSize);
     }
     p.show();
   }
 }
 
-function drawGrid() {
+function showBoard() {
   stroke(0);
   for (let i = 0; i < 8; i++) {
     for (let j = 0; j < 8; j++) {

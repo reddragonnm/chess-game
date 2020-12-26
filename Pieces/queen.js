@@ -7,13 +7,8 @@ class Queen extends Piece {
     else this.img = black_queen;
   }
 
-  isValidMove(a, b) {
-    let goto;
-    let current = posToIndex(this.prevPos);
-
-    if (a instanceof p5.Vector) {
-      goto = posToIndex(a);
-    } else goto = createVector(a, b);
+  isValidMove(goto) {
+   let current = this.pos;
 
     for (let i = current.y; i < 8; i++) {
       let t = board[current.x][i];

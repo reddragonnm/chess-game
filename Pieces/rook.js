@@ -7,13 +7,8 @@ class Rook extends Piece {
     else this.img = black_rook;
   }
 
-  isValidMove(a, b) {
-    let goto;
-    if (a instanceof p5.Vector) goto = posToIndex(a);
-    else goto = createVector(a, b);
-    let current = posToIndex(this.prevPos);
-
-    // if (pos.x == tp.x || pos.y == tp.y) return true;
+  isValidMove(goto) {
+    let current = this.pos;
 
     // right
     for (let i = current.y; i < 8; i++) {

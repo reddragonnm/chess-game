@@ -4,13 +4,17 @@ function posToIndex(pos) {
   return createVector(n.y, n.x);
 }
 
+function indexToPos(pos) {
+  let n = p5.Vector.mult(pos, tileSize);
+  return createVector(n.y, n.x);
+}
+
 // general class for piece - will be inherited
 class Piece {
   constructor(x, y, isWhite) {
-    this.pos = p5.Vector.mult(createVector(x, y), tileSize);
-    this.isWhite = isWhite;
+    this.pos = createVector(x, y);
 
-    this.updatePrevPos();
+    this.isWhite = isWhite;
 
     this.lifted = false;
     this.hasMoved = false;
@@ -21,10 +25,9 @@ class Piece {
     let t;
     for (let c of arr) {
       if (this instanceof c) {
-        t = new c(this.x, this.y, this.isWhite);
+        t = new c(this.pos.x, this.pos.y, this.isWhite);
       }
     }
-    t.prevPos = this.prevPos.copy();
     t.pos = this.pos.copy();
     t.lifted = this.lifted;
     t.hasMoved = this.hasMoved;
@@ -32,12 +35,17 @@ class Piece {
   }
 
   mouseOver() {
-    return (this.pos.x < mouseX && mouseX < this.pos.x + tileSize &&
-      this.pos.y < mouseY && mouseY < this.pos.y + tileSize);
+    let pos = indexToPos(this.pos);
+    return (
+      pos.x < mouseX &&
+      mouseX < pos.x + tileSize &&
+      pos.y < mouseY &&
+      mouseY < pos.y + tileSize
+    );
   }
 
-  updatePrevPos() {
-    this.prevPos = this.pos.copy();
+  updatePos(pos) {
+    this.pos = pos;
   }
 
   lift() {
@@ -47,33 +55,30 @@ class Piece {
   drop() {
     this.lifted = false;
     let p = createVector(
-      floor(mouseX / tileSize) * tileSize,
-      floor(mouseY / tileSize) * tileSize
+      constrain(floor(mouseY / tileSize), 0, 7),
+      constrain(floor(mouseX / tileSize), 0, 7)
     );
 
-    let notOffScreen = (0 <= p.x && p.x <= width && 0 <= p.y && p.y <= height);
+    console.log(p);
 
     if (
       this.isWhite == whiteMove && this.isValidMove(p) &&
-      notOffScreen &&
       validCheckMove(this, p)
     ) {
-      this.pos = p;
       this.hasMoved = true;
-    } else {
-      this.pos = this.prevPos.copy();
+      return [this.pos, p];
     }
-
-    return [this.prevPos, this.pos];
   }
 
   show() {
     if (this.lifted) {
-      this.pos.set(mouseX - tileSize / 2, mouseY - tileSize / 2);
-      image(this.img, this.pos.x - tileSize/4, this.pos.y - tileSize/4, tileSize * 1.5, tileSize * 1.5);
+      imageMode(CENTER);
+      image(this.img, mouseX, mouseY, tileSize * 1.5, tileSize * 1.5);
     }
     else {
-      image(this.img, this.pos.x, this.pos.y, tileSize, tileSize);
+      imageMode(CORNER);
+      let pos = indexToPos(this.pos);
+      image(this.img, pos.x, pos.y, tileSize, tileSize);
     }
 
   }
