@@ -14,6 +14,7 @@ class Pawn extends Piece {
       return false;
     }
 
+    // relative moves possible
     let arr = [
       [-1, 0],
       [-2, 0],

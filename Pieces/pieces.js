@@ -1,9 +1,4 @@
-// utility function to transform screen position to board index
-function posToIndex(pos) {
-  let n = p5.Vector.div(pos, tileSize)
-  return createVector(n.y, n.x);
-}
-
+// utility function to transform board index to screen position
 function indexToPos(pos) {
   let n = p5.Vector.mult(pos, tileSize);
   return createVector(n.y, n.x);
