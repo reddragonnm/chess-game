@@ -61,6 +61,7 @@ class Piece {
 
   canGo(p) {
     return this.isWhite == whiteMove && this.isValidMove(p) && validCheckMove(this, p);
+    // return this.isWhite == whiteMove && this.isValidMove(p);
   }
 
   show() {

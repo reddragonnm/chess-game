@@ -28,8 +28,8 @@ function preload() {
   black_queen = loadImage("assets/black_queen.png");
 }
 
-let maxDepth = 1;
-let tileSize = 70;
+let maxDepth = 2;
+let tileSize = 65;
 let pickedPiece;
 
 let kingb;
@@ -80,7 +80,7 @@ function draw() {
 }
 
 function mousePressed() {
-  if (pickedPiece == null && whiteMove) {
+  if (pickedPiece == null) {
     for (let tile of getAllPieces()) {
       if (tile.mouseOver()) {
         pickedPiece = tile;
@@ -96,6 +96,7 @@ function movePiece(piece, p2, br) {
 
   if (!p1.equals(p2) && br == null) {
     piece.hasMoved = true;
+    whiteMove = !whiteMove;
   }
 
   if (br == null) br = board;
@@ -151,9 +152,6 @@ function mouseReleased() {
   if (pickedPiece != null) {
     let p = pickedPiece.drop();
 
-    if (pickedPiece.isWhite && p!=null && !pickedPiece.pos.equals(p))
-      whiteMove = false;
-
     if (p != null) {
        board = movePiece(pickedPiece, p);
 
@@ -165,13 +163,8 @@ function mouseReleased() {
     pickedPiece = null;
 
     winner = checkForGameOver(board);
-    if (winner != '') console.log(winner);
-
-    if (!whiteMove && winner == '') {
-      aiMove();
-      let b = checkForCheck(board);
-      kingb.inCheck = b[0];
-      kingw.inCheck = b[1];
+    if (winner != '') {
+      let p = createElement('h1', winner);
     }
   }
 }
