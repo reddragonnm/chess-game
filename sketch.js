@@ -31,9 +31,11 @@ function preload() {
 let maxDepth = 2;
 let tileSize = 65;
 let pickedPiece;
+let halfMoves = 0;
 
 let kingb;
 let kingw;
+let enPassant;
 
 let undoButton;
 let winner = '';
@@ -76,7 +78,6 @@ function draw() {
 
   showBoard();
   showAllPieces();
-  highlightMoves();
 }
 
 function mousePressed() {
@@ -97,6 +98,7 @@ function movePiece(piece, p2, br) {
   if (!p1.equals(p2) && br == null) {
     piece.hasMoved = true;
     whiteMove = !whiteMove;
+    halfMoves += 1;
   }
 
   if (br == null) br = board;
@@ -135,7 +137,7 @@ function validCheckMove(piece, goto) {
   board[goto.x][goto.y] = prevP;
 
   if (a[0] && a[0] == b[0]) return false;
-  if (a[1] && a[1]== b[1]) return false;
+  if (a[1] && a[1] == b[1]) return false;
 
   if (!piece.isWhite && !whiteMove) {
     if (!a[0] && b[0]) return false;
@@ -153,11 +155,11 @@ function mouseReleased() {
     let p = pickedPiece.drop();
 
     if (p != null) {
-       board = movePiece(pickedPiece, p);
+      board = movePiece(pickedPiece, p);
 
-       let b = checkForCheck(board);
-       kingb.inCheck = b[0];
-       kingw.inCheck = b[1];
+      let b = checkForCheck(board);
+      kingb.inCheck = b[0];
+      kingw.inCheck = b[1];
     }
 
     pickedPiece = null;
@@ -209,13 +211,12 @@ function checkForCheck(br) {
     for (let j = 0; j < 8; j++) {
       let t = br[i][j];
       for (let p of getAllPieces(br)) {
-        if (p instanceof King && t!='') {
+        if (p instanceof King && t != '') {
           if (p.isWhite) {
             if (!t.isWhite && t.isValidMove(p.pos)) {
               wCheck = true;
             }
-          }
-          else {
+          } else {
             if (t.isWhite && t.isValidMove(p.pos)) {
               bCheck = true;
             }
@@ -226,22 +227,6 @@ function checkForCheck(br) {
   }
 
   return [bCheck, wCheck];
-}
-
-function highlightMoves() {
-  noStroke();
-  fill(125, 255, 0);
-
-  if (pickedPiece != null) {
-    for (let i = 0; i < 8; i++) {
-      for (let j = 0; j < 8; j++) {
-        if (pickedPiece.canGo(createVector(i, j))) {
-          circle(j * tileSize + tileSize / 2, i * tileSize + tileSize / 2, 25);
-          // rect(j*tileSize, i*tileSize, tileSize, tileSize);
-        }
-      }
-    }
-  }
 }
 
 function checkForGameOver(br) {
@@ -262,6 +247,9 @@ function checkForGameOver(br) {
     if (whiteMove && kingw.inCheck) w = 'Checkmate by black';
     else if (!whiteMove && kingb.inCheck) w = 'Checkmate by white';
     else w = 'Stalemate';
+  }
+  if (halfMoves >= 100) {
+    w = 'Draw by 50 move rule';
   }
 
   return w;

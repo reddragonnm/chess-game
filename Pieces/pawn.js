@@ -22,6 +22,11 @@ class Pawn extends Piece {
       [-1, 1]
     ]
 
+    if (enPassant != null) {
+      if (enPassant.isWhite && goto.equals(createVector(enPassant.pos.x + 1, enPassant.pos.y))) return true;
+      if (!enPassant.isWhite && goto.equals(createVector(enPassant.pos.x - 1, enPassant.pos.y))) return true;
+    }
+
     for (let i = 0; i < 4; i++) {
       let a = current.x + arr[i][0] * (this.isWhite ? 1 : -1);
       let b = current.y + arr[i][1];
@@ -37,9 +42,16 @@ class Pawn extends Piece {
         if (board[a][b] == "" && goto.equals(createVector(a, b))) return true;
       }
 
+      if (i == 1 && !this.hasMoved && this.isWhite == whiteMove) {
+        console.log('hello');
+        enPassant = this;
+      } else if (enPassant == this) {
+        enPassant = null;
+      }
+
       // if third or fourth - diagonal moves
-      if (i==2 || i==3) {
-        if (board[a][b] != '' && board[a][b].isWhite!=this.isWhite && goto.equals(createVector(a, b))) return true;
+      if (i == 2 || i == 3) {
+        if (board[a][b] != '' && board[a][b].isWhite != this.isWhite && goto.equals(createVector(a, b))) return true;
       }
     }
 
